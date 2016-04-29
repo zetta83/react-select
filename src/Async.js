@@ -36,22 +36,25 @@ function thenPromise (promise, callback) {
 	});
 }
 
+const stringOrNode = React.PropTypes.oneOfType([
+	React.PropTypes.string,
+	React.PropTypes.node
+]);
+
 const Async = React.createClass({
 	propTypes: {
 		cache: React.PropTypes.any,                     // object to use to cache results, can be null to disable cache
-		loadOptions: React.PropTypes.func.isRequired,   // function to call to load options asynchronously
 		ignoreAccents: React.PropTypes.bool,            // whether to strip diacritics when filtering (shared with Select)
 		ignoreCase: React.PropTypes.bool,               // whether to perform case-insensitive filtering (shared with Select)
 		isLoading: React.PropTypes.bool,                // overrides the isLoading state when set to true
+		loadOptions: React.PropTypes.func.isRequired,   // function to call to load options asynchronously
 		loadingPlaceholder: React.PropTypes.string,     // replaces the placeholder while options are loading
 		minimumInput: React.PropTypes.number,           // the minimum number of characters that trigger loadOptions
-		noResultsText: React.PropTypes.string,          // placeholder displayed when there are no matching search results (shared with Select)
-		placeholder: React.PropTypes.oneOfType([        // field placeholder, displayed when there's no value (shared with Select)
-			React.PropTypes.string,
-			React.PropTypes.node
-		]),
-		searchingText: React.PropTypes.string,          // message to display while options are loading
+		noResultsText: stringOrNode,                    // placeholder displayed when there are no matching search results (shared with Select)
+		onInputChange: React.PropTypes.func,            // onInputChange handler: function (inputValue) {}
+		placeholder: stringOrNode,                      // field placeholder, displayed when there's no value (shared with Select)
 		searchPromptText: React.PropTypes.string,       // label to prompt for search input
+		searchingText: React.PropTypes.string,          // message to display while options are loading
 	},
 	getDefaultProps () {
 		return {
@@ -108,6 +111,9 @@ const Async = React.createClass({
 		};
 	},
 	loadOptions (input) {
+		if (this.props.onInputChange) {
+			this.props.onInputChange(input);
+		}
 		if (this.props.ignoreAccents) input = stripDiacritics(input);
 		if (this.props.ignoreCase) input = input.toLowerCase();
 		this._lastInput = input;
